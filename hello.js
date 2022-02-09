@@ -1,0 +1,7 @@
+useImperativeHandle(
+  first,
+  () => {
+    second;
+  },
+  [third]
+);
