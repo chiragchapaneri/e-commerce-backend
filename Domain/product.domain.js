@@ -32,6 +32,7 @@ async function allproduct(req, res) {
   const addproduct = await Product.find();
 
   if (addproduct.length != 0) {
+    console.log(addproduct);
     res.send({ data: addproduct });
   } else {
     res.send({ messege: "data not founf" });
@@ -273,12 +274,14 @@ async function productByname(req, res) {
 
 // show all product by category name
 async function productbycategory(req, res) {
-  const { error } = await validproductserch(req.body);
+  console.log(req.params.id);
+  console.log();
+  // const { error } = await validproductserch(req.body);
   const productdata = await Product.find();
 
-  if (error) {
-    return res.status(404).send({ messege: error.details[0].message });
-  }
+  // if (error) {
+  //   return res.status(404).send({ messege: error.details[0].message });
+  // }
 
   const data = await Product.aggregate([
     {
@@ -291,8 +294,7 @@ async function productbycategory(req, res) {
     },
     {
       $match: {
-        "category.categoryname": req.body.categoryname,
-        "category.active": true,
+        "category.categoryname": req.params.id,
       },
     },
 
@@ -303,6 +305,8 @@ async function productbycategory(req, res) {
         productname: 1,
         price: 1,
         details: 1,
+        image1: 1,
+        status: 1,
       },
     },
   ]);

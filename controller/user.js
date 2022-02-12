@@ -44,7 +44,7 @@ route.get("/product", product);
 route.post("/product/name", productByname);
 
 //show all product by categoryname
-route.get("/product/categoryname", productbycategory);
+route.get("/product/categoryname/:id", productbycategory);
 
 //show all product by id
 route.get("/product/:id", uproductbyid);

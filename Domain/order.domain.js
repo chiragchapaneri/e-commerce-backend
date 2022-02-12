@@ -26,28 +26,26 @@ const {
 //admin watch the order list
 
 async function uorderlist(req, res) {
-  console.log(req.decode._id);
-
   const data = await Order.find()
     .populate({
       path: "productid",
       model: "product",
-      select: ["productname", "price"],
+      select: ["productname", "price", "image1"],
     })
 
     .select({
       quantity: 1,
       _id: 1,
       userid: 1,
+      city: 1,
+      date: 1,
     })
     .populate({
       path: "userid",
       model: "user",
       select: ["firstname"],
-    })
-    .select({
-      _id: 1,
     });
+
   if (data != 0) {
     res.status(200).send({
       message: "order list",
@@ -119,13 +117,19 @@ async function orderlist(req, res) {
   console.log(req.decode._id);
 
   const data = await Order.find({ userid: req.decode._id })
+    .select({
+      price: 1,
+      quantity: 1,
+
+      date: 1,
+    })
     .populate({
       path: "productid",
       model: "product",
-      select: ["productname", "price"],
-    })
-    .select({ productname: 1, price: 1, quantity: 1, _id: 1, date: 1 });
+      select: ["productname"],
+    });
   if (data != 0) {
+    console.log(data);
     res.send({
       message: "order list",
       data: data,

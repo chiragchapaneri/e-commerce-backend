@@ -15,7 +15,6 @@ app.use(
 require("dotenv").config();
 
 app.use(cors());
-const port = 3000;
 const mongoose = require("mongoose");
 app.use(express.Router());
 

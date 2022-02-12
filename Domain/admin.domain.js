@@ -39,6 +39,7 @@ async function adminsignup(req, res) {
 
 async function adminlogin(req, res) {
   try {
+    console.log(req.body);
     const userdata = await Admin.findOne({
       email: req.body.email,
     });
@@ -50,10 +51,14 @@ async function adminlogin(req, res) {
           algorithm: global.config.algorithm,
           expiresIn: global.config.expiresIn,
         });
-        res.status(200).send(token);
+        res.status(200).send({
+          token: token,
+        });
       } else {
         res.status(400).send("login unsuccessfull..");
       }
+    } else {
+      res.status(400).send("please enter valid email or password");
     }
   } catch (error) {
     res.status(400).send(error);

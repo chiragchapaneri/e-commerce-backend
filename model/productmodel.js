@@ -35,6 +35,7 @@ const Product = mongoose.model(
     size: { type: String },
     color: { type: String },
     storage: { type: String },
+
     other: { type: String },
   }).plugin(autoIncrement.plugin, {
     model: "post",
