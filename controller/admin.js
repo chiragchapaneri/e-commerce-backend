@@ -43,6 +43,6 @@ route.get("/product", verifyadmintoken, allproduct);
 //show  product by id
 route.get("/product/:id", verifyadmintoken, productbyid);
 
-route.put("/product/update", uploadimage, verifyadmintoken, updateproduct);
+route.put("/product/update", upload, verifyadmintoken, updateproduct);
 route.get("/orderlist", verifyadmintoken, orderlist);
 module.exports = route;

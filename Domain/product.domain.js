@@ -29,7 +29,11 @@ async function productbyid(req, res) {
 }
 //show all product
 async function allproduct(req, res) {
-  const addproduct = await Product.find();
+  const addproduct = await Product.find().populate({
+    path: "category",
+    model: "category",
+    select: ["categoryname"],
+  });
 
   if (addproduct.length != 0) {
     console.log(addproduct);
@@ -73,41 +77,45 @@ async function findone(req, res) {
 
 //update product
 async function updateproduct(req, res) {
+  console.log("in update");
+  console.log(req.body);
+  const price = parseInt(req.body.price);
+  console.log(typeof image1);
+
   const data = await update_productvalid(req.body);
   if (data.error) {
     return res.send({ message: data.error.details[0].message });
   } else {
     const find = await Product.findById(req.body.productid);
     if (!find) {
-      return res.send({ message: "id not found" });
+      return res.status(400).send({ message: "id not found" });
     } else {
-      const file = req.files ? req.files.img.tempFilePath : "";
-      file.length > 0 &&
-        file.map((data) => {
-          console.log(data);
-        });
-      const result = file ? await cloudinary.uploader.upload(file) : "";
-      console.log(find);
       const updateproduct = await Product.findByIdAndUpdate(
         req.body.productid,
         {
-          productname: req.body.productname,
-          price: req.body.price,
-          quantity: req.body.quantity ? req.body.quantity : find.quantity,
-          details: req.body.details ? req.body.details : find.details,
-          active: req.body.active ? req.body.active : find.active,
+          productname: req.body.productname
+            ? req.body.productname
+            : find.productname,
+          price: req.body.price ? parseInt(req.body.price) : find.price,
+          quantity: req.body.quantity,
+          active: req.body.active,
           image1: req.image1 ? req.image1.url : find.image1,
           image2: req.image2 ? req.image2.url : find.image2,
           image3: req.image3 ? req.image3.url : find.image3,
-          image4: req.image4 ? req.image4.url : find.image4,
-          image5: req.image5 ? req.image5.url : find.image5,
+
+          ram: req.body.ram,
+          processor: req.body.processor,
+          size: req.body.size,
+          color: req.body.color,
+          storage: req.body.storage,
+
           date: new Date(),
         }
       );
 
       console.log(updateproduct);
       const data = await Product.findById(req.body.productid);
-      console.log(data);
+
       if (updateproduct) {
         res.json({
           message: "upadet successfull",
