@@ -131,6 +131,7 @@ async function updateproduct(req, res) {
   }
 }
 async function productadd(req, res) {
+  console.log(req.body);
   const valid = await productvalid(req.body);
 
   try {
@@ -161,7 +162,7 @@ async function productadd(req, res) {
       });
       const productadded = savedata.save();
 
-      console.log("imageupload");
+    
       res.send(savedata);
     }
   } catch (er) {

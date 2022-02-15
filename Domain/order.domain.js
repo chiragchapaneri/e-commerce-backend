@@ -149,8 +149,8 @@ async function newcartorders(req, res) {
       return res.status(400).send({ err: error.details[0].message });
     }
   }
-
-  if (!req.body.length) {
+  console.log(`length=${req.body.length}`);
+  if (req.body.length == 1) {
     const order = new Order({
       productid: req.body.productid,
       userid: req.body.userid,
@@ -177,42 +177,46 @@ async function newcartorders(req, res) {
       return res.status(200).send({ message: "order successfull" });
     }
   } else {
-    console.log("Aascsc");
-  }
+    // console.log("Aascsc");
+    // }
 
-  try {
-    req.body.map(async (data) => {
-      const order = new Order({
-        productid: data.productid,
-        userid: data.userid,
-        quantity: data.quantity,
-        total: data.total,
-        addressline1: data.addressline1
-          ? data.addressline1
-          : req.decode.flate_name,
-        addressline2: data.addressline2 ? data.addressline2 : req.decode.nearby,
-        city: data.city ? data.city : req.decode.city,
-        state: data.state ? data.state : req.decode.state,
+    try {
+      req.body.map(async (data) => {
+        console.log(data);
+        const order = new Order({
+          productid: data.products[0]._id,
+          userid: data.userid,
+          quantity: data.quantity,
+          total: data.total,
+          addressline1: data.addressline1
+            ? data.addressline1
+            : req.decode.flate_name,
+          addressline2: data.addressline2
+            ? data.addressline2
+            : req.decode.nearby,
+          city: data.city ? data.city : req.decode.city,
+          state: data.state ? data.state : req.decode.state,
+        });
+        const savedata = await order.save();
+
+        if (savedata) {
+          const productdetails = await Product.updateOne(
+            {
+              _id: data.productid,
+            },
+            { $inc: { quantity: -req.body[0].quantity } }
+          );
+          const cartdetails = await Cart.findByIdAndRemove(data._id);
+          // const cartdetails = await Cart.findByIdAndRemove(req.body[0]._id);
+        }
       });
-      const savedata = await order.save();
 
-      if (savedata) {
-        const productdetails = await Product.updateOne(
-          {
-            _id: data.productid,
-          },
-          { $inc: { quantity: -req.body[0].quantity } }
-        );
-        const cartdetails = await Cart.findByIdAndRemove(data._id);
-        // const cartdetails = await Cart.findByIdAndRemove(req.body[0]._id);
-      }
-    });
-
-    return res.status(200).send({
-      message: "order successfull",
-    });
-  } catch (er) {
-    console.log(er);
+      return res.status(200).send({
+        message: "order successfull",
+      });
+    } catch (er) {
+      console.log(er);
+    }
   }
 }
 

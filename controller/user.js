@@ -24,6 +24,7 @@ const {
 
   feedback,
   shiping,
+  getstate,
 } = require("../Domain/user.domain");
 const { usershowcategory } = require("../Domain/category.domain");
 const { uploadimage } = require("../middleware/imageupload");
@@ -68,5 +69,7 @@ route.get("/orderlist", verifyusertoken, uorderlist);
 route.post("/feedback", verifyusertoken, feedback);
 //shiping
 route.get("/shiping", verifyusertoken, shiping);
+
+route.get("/state", getstate);
 
 module.exports = route;

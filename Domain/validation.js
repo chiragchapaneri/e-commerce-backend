@@ -93,8 +93,8 @@ async function productvalid(data) {
   const schema = Joi.object({
     category: Joi.number().required().min(3),
     productname: Joi.string().required().min(5),
-    price: Joi.number().required().min(1),
-    quantity: Joi.number().required().min(1),
+    price: Joi.number().min(1),
+    quantity: Joi.number().min(1),
     ram: Joi.string(),
     processor: Joi.string(),
     size: Joi.string(),
@@ -108,9 +108,9 @@ async function productvalid(data) {
 
 async function update_productvalid(data) {
   const schema = Joi.object({
-    productname: Joi.string().min(5),
-    price: Joi.array().min(1),
-    quantity: Joi.array().min(1),
+    productname: Joi.string(),
+    price: Joi.number().min(1),
+    quantity: Joi.number().min(1),
     details: Joi.object(),
     productid: Joi.number(),
     active: Joi.boolean(),

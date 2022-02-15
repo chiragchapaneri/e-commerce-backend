@@ -16,6 +16,7 @@ const Feedback = require("../model/feedback");
 const { User } = require("../model/usermodel");
 const bcrypt = require("bcrypt");
 const { uploadimage } = require("../middleware/imageupload");
+const { Country } = require("../model/country");
 
 async function signup(req, res) {
   try {
@@ -96,6 +97,13 @@ async function login(req, res) {
     res.status(400).send({
       err: "Invalid Email or Password",
     });
+  }
+}
+
+async function getstate(req, res) {
+  const state = await Country.find();
+  if (state) {
+    res.send({ state });
   }
 }
 
@@ -208,4 +216,5 @@ module.exports = {
 
   feedback,
   shiping,
+  getstate,
 };

@@ -1,4 +1,5 @@
 const express = require("express");
+const { Country } = require("./model/country");
 const app = express();
 app.use(express.json());
 const cors = require("cors");
@@ -7,6 +8,7 @@ global.config = require("./config");
 const bodyparser = require("body-parser");
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
+
 app.use(
   fileupload({
     useTempFiles: true,
