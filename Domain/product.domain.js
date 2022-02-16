@@ -162,7 +162,6 @@ async function productadd(req, res) {
       });
       const productadded = savedata.save();
 
-    
       res.send(savedata);
     }
   } catch (er) {
@@ -183,7 +182,7 @@ async function productdelete(req, res) {
 //user
 //show all product
 
-async function product(req, res) {
+async function newall(req, res) {
   const data = await Product.aggregate([
     {
       $lookup: {
@@ -404,7 +403,7 @@ module.exports = {
   productadd,
   productdelete, //
 
-  product,
+  newall,
   productByname,
   productbycategory,
   uproductbyid,

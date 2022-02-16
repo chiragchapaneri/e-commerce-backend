@@ -143,16 +143,13 @@ async function orderlist(req, res) {
 
 async function newcartorders(req, res) {
   // console.log(req.body);
-  if (req.bodyy) {
-    const { error } = await validadress(req.body);
-    if (error) {
-      return res.status(400).send({ err: error.details[0].message });
-    }
-  }
+
+  // console.log(req.body[0].products[0]._id);
+
   console.log(`length=${req.body.length}`);
-  if (req.body.length == 1) {
+  if (!req.body.length) {
     const order = new Order({
-      productid: req.body.productid,
+      productid: req.body._id,
       userid: req.body.userid,
       quantity: req.body.quantity,
       total: req.body.total,
@@ -177,9 +174,6 @@ async function newcartorders(req, res) {
       return res.status(200).send({ message: "order successfull" });
     }
   } else {
-    // console.log("Aascsc");
-    // }
-
     try {
       req.body.map(async (data) => {
         console.log(data);

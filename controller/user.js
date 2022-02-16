@@ -9,37 +9,42 @@ const {
   productByname,
   productbycategory,
   uproductbyid,
+  newall,
+  allproduct,
 } = require("../Domain/product.domain");
 const {
   addcart,
   Decrease_Quantity,
   showcart,
   showcartbyuserid,
+  RemoveCart,
 } = require("../Domain/cart.domain");
 const { order, newcartorders, uorderlist } = require("../Domain/order.domain");
 
 const {
   signup,
   login,
-
+  profile,
   feedback,
   shiping,
   getstate,
+  getuser,
 } = require("../Domain/user.domain");
 const { usershowcategory } = require("../Domain/category.domain");
-const { uploadimage } = require("../middleware/imageupload");
 
 const route = express.Router();
 //user registration
 route.post("/signup", upload, signup);
+route.post("/profile", upload, verifyusertoken, profile);
 //user login
 route.post("/login", login);
+route.get("/:id", getuser);
 //show all category
 
 route.get("/category/show", usershowcategory);
 
 //show all product
-route.get("/product", product);
+route.get("/product/all", allproduct);
 
 // //show all product by name
 route.post("/product/name", productByname);
@@ -57,6 +62,8 @@ route.post("/cart/decreasequantity", verifyusertoken, Decrease_Quantity);
 route.get("/cart/show", verifyusertoken, showcart);
 
 route.get("/cart/show/:id", verifyusertoken, showcartbyuserid);
+
+route.put("/cart/remove", verifyusertoken, RemoveCart);
 
 //order
 route.post("/order", verifyusertoken, order);

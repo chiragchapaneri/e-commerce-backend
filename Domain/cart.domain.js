@@ -73,6 +73,20 @@ async function addcart(req, res) {
   }
 }
 
+async function RemoveCart(req, res) {
+  console.log("yexs");
+  const user_productdata = await Cart.findOne({ userid: req.decode._id }).and({
+    productid: req.body.productid,
+  });
+
+  if (user_productdata) {
+    const remove = await Cart.findByIdAndRemove(user_productdata._id);
+    if (remove) {
+      res.status(200).send("product is remove");
+    }
+  }
+}
+
 async function Decrease_Quantity(req, res) {
   const user_productdata = await Cart.findOne({ userid: req.decode._id })
     .and({
@@ -239,4 +253,5 @@ module.exports = {
   Decrease_Quantity,
   showcart,
   showcartbyuserid,
+  RemoveCart,
 };

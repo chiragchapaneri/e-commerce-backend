@@ -70,6 +70,30 @@ async function signup(req, res) {
   }
 }
 
+async function profile(req, res) {
+  try {
+    console.log(req.image1);
+    const updateprofile = await User.findByIdAndUpdate(parseInt(req.body.id), {
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      mno: req.body.mno,
+
+      flate_name: req.body.flate_name,
+      nearby: req.body.nearby,
+
+      city: req.body.city,
+
+      image: req.image1 && req.image1.url,
+    });
+    const useradd = updateprofile.save();
+    res.send(updateprofile);
+
+    console.log(useradd);
+  } catch (err) {
+    return res.status(404).send({ err: err.message });
+  }
+}
+
 async function login(req, res) {
   const userdata = await User.findOne({
     email: req.body.email,
@@ -97,6 +121,15 @@ async function login(req, res) {
     res.status(400).send({
       err: "Invalid Email or Password",
     });
+  }
+}
+
+async function getuser(req, res) {
+  const userdata = await User.findOne({
+    _id: req.params.id,
+  });
+  if (userdata) {
+    res.status(200).send(userdata);
   }
 }
 
@@ -217,4 +250,6 @@ module.exports = {
   feedback,
   shiping,
   getstate,
+  getuser,
+  profile,
 };
