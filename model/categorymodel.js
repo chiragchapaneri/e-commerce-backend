@@ -19,7 +19,7 @@ const Category = mongoose.model(
       type: Boolean,
       default: true,
     },
-    _id: Number,
+    _id: { type: String },
   }).plugin(autoIncrement.plugin, {
     model: "post",
     field: "_id",

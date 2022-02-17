@@ -114,7 +114,7 @@ async function order(req, res) {
 }
 
 async function orderlist(req, res) {
-  console.log(req.decode._id);
+  // console.log(req.decode._id);
 
   const data = await Order.find({ userid: req.decode._id })
     .select({
@@ -296,4 +296,8 @@ async function newcartorders(req, res) {
 // }
 // }
 
-module.exports = { orderlist, order, newcartorders, uorderlist };
+async function news(req, res) {
+  console.log("yes");
+}
+
+module.exports = { orderlist, order, newcartorders, uorderlist, news };

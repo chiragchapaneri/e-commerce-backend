@@ -6,7 +6,7 @@ autoIncrement.initialize(mongoose.connection);
 const Country = mongoose.model(
   "country",
   new mongoose.Schema({
-    _id: Number,
+    _id: { type: String },
     state: { type: String, required: true },
     city: { type: String, required: true },
   }).plugin(autoIncrement.plugin, {

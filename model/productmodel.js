@@ -14,7 +14,7 @@ autoIncrement.initialize(mongoose.connection);
 const Product = mongoose.model(
   "product",
   new mongoose.Schema({
-    _id: Number,
+    _id: { type: String },
     category: {
       type: Number,
       required: true,

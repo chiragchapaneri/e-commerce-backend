@@ -16,8 +16,8 @@ async function uservalid(data) {
 
     flate_name: Joi.string().required(),
     nearby: Joi.string().required(),
-    city: Joi.string().alphanum().min(3).max(30).required(),
-    state: Joi.string().alphanum().min(3).max(30).required(),
+    city: Joi.string(),
+    state: Joi.string(),
     password: Joi.string().alphanum().min(8).max(30).required(),
     mno: Joi.number().integer().min(10).required(),
     Mno: Joi.string().length(10),

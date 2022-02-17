@@ -6,7 +6,7 @@ autoIncrement.initialize(mongoose.connection);
 const Admin = mongoose.model(
   "admin",
   new mongoose.Schema({
-    _id: Number,
+    _id: { type: String },
     firstname: { type: String, required: true },
     lastname: { type: String, required: true },
     mno: {

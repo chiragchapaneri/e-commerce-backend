@@ -20,7 +20,7 @@ const { Country } = require("../model/country");
 
 async function signup(req, res) {
   try {
-    const valid = await uservalid(req.body);
+    // const valid = await uservalid(req.body);
 
     const uniqueemail = await User.findOne({ email: req.body.email }).select({
       email: 1,
@@ -40,31 +40,31 @@ async function signup(req, res) {
         }
       }
     }
-    if (valid.error) {
-      return res.status(404).send({ message: valid.error.details[0].message });
-    } else {
-      try {
-        const hash = bcrypt.hashSync(req.body.password, 10);
-        const savedata = new User({
-          firstname: req.body.firstname,
-          lastname: req.body.lastname,
-          mno: req.body.mno,
+    // if (valid.error) {
+    //   return res.status(404).send({ message: valid.error.details[0].message });
+    // } else {
+    try {
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      const savedata = new User({
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        mno: req.body.mno,
 
-          flate_name: req.body.flate_name,
-          nearby: req.body.nearby,
+        flate_name: req.body.flate_name,
+        nearby: req.body.nearby,
 
-          city: req.body.city,
-          state: req.body.state,
-          email: req.body.email,
-          password: hash,
-          image: req.image && req.image.url,
-        });
-        const useradd = savedata.save();
-        res.send(savedata);
-      } catch (err) {
-        return res.status(404).send({ err: err.message });
-      }
+        city: req.body.city,
+        state: req.body.state,
+        email: req.body.email,
+        password: hash,
+        image: req.image && req.image.url,
+      });
+      const useradd = savedata.save();
+      res.send(savedata);
+    } catch (err) {
+      return res.status(404).send({ err: err.message });
     }
+    // }
   } catch (err) {
     console.log(err.message);
   }

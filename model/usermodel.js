@@ -1,4 +1,3 @@
-const { string } = require("joi");
 const mongoose = require("mongoose");
 const autoIncrement = require("mongoose-auto-increment");
 // mongoose
@@ -13,7 +12,8 @@ autoIncrement.initialize(mongoose.connection);
 const User = mongoose.model(
   "user",
   new mongoose.Schema({
-    _id: Number,
+    _id: { type: String },
+    id: { type: Number, required: false },
     firstname: { type: String, required: true },
     lastname: { type: String, required: true },
     mno: { type: Number, unique: true, required: true },

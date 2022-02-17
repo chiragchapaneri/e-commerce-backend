@@ -18,8 +18,14 @@ const {
   showcart,
   showcartbyuserid,
   RemoveCart,
+   uorderlist,
 } = require("../Domain/cart.domain");
-const { order, newcartorders, uorderlist } = require("../Domain/order.domain");
+const {
+  order,
+  newcartorders,
+ 
+  news,
+} = require("../Domain/order.domain");
 
 const {
   signup,
@@ -60,6 +66,7 @@ route.post("/cart/addcart", verifyusertoken, addcart);
 route.post("/cart/decreasequantity", verifyusertoken, Decrease_Quantity);
 //show cart
 route.get("/cart/show", verifyusertoken, showcart);
+route.get("/order/show", verifyusertoken, uorderlist);
 
 route.get("/cart/show/:id", verifyusertoken, showcartbyuserid);
 
@@ -70,7 +77,7 @@ route.post("/order", verifyusertoken, order);
 // ?route.post("/order/cart", verifyusertoken, newcartorder);
 route.post("/order/carts", verifyusertoken, newcartorders);
 // orderlist
-route.get("/orderlist", verifyusertoken, uorderlist);
+// route.get("/orderlist", verifyusertoken, news);
 
 //feedaback
 route.post("/feedback", verifyusertoken, feedback);

@@ -12,7 +12,7 @@ autoIncrement.initialize(mongoose.connection);
 const Shiping = mongoose.model(
   "shiping",
   new mongoose.Schema({
-    _id: Number,
+    _id: { type: String },
     userid: {
       type: Number,
       required: true,

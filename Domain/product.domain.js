@@ -131,39 +131,39 @@ async function updateproduct(req, res) {
   }
 }
 async function productadd(req, res) {
-  console.log(req.body);
-  const valid = await productvalid(req.body);
+  // console.log(req.body);
+  // const valid = await productvalid(req.body);
 
   try {
     const images = await uploadimages(req.files);
     console.log(req.files);
 
-    if (valid.error) {
-      return res.send({ err: valid.error.details[0] });
-    } else {
-      const savedata = new Product({
-        category: req.body.category,
-        productname: req.body.productname,
+    // if (valid.error) {
+    //   return res.send({ err: valid.error.details[0] });
+    // } else {
+    const savedata = new Product({
+      category: req.body.category,
+      productname: req.body.productname,
 
-        price: req.body.price,
-        quantity: req.body.quantity,
-        ram: req.body.ram,
-        processor: req.body.processor,
-        size: req.body.size,
-        color: req.body.color,
-        storage: req.body.storage,
-        other: req.body.other,
+      price: req.body.price,
+      quantity: req.body.quantity,
+      ram: req.body.ram,
+      processor: req.body.processor,
+      size: req.body.size,
+      color: req.body.color,
+      storage: req.body.storage,
+      other: req.body.other,
 
-        image1: req.image1 ? req.image1.url : "",
-        image2: req.image2 ? req.image2.url : "",
-        image3: req.image3 ? req.image3.url : "",
-        image4: req.image4 ? req.image4.url : "",
-        image5: req.image5 ? req.image5.url : "",
-      });
-      const productadded = savedata.save();
+      image1: req.image1 ? req.image1.url : "",
+      image2: req.image2 ? req.image2.url : "",
+      image3: req.image3 ? req.image3.url : "",
+      image4: req.image4 ? req.image4.url : "",
+      image5: req.image5 ? req.image5.url : "",
+    });
+    const productadded = savedata.save();
 
-      res.send(savedata);
-    }
+    res.send(savedata);
+    // }
   } catch (er) {
     console.log(er);
   }
@@ -351,6 +351,7 @@ async function uproductbyid(req, res) {
 //show all product by product name
 
 async function productbyname(req, res) {
+  console.log(req.body);
   const { error } = await validproductname(req.body);
   if (error) {
     return res.send({

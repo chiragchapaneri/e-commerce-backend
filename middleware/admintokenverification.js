@@ -16,7 +16,7 @@ async function verifyadmintoken(req, res, next) {
         req.decode = decode;
         next();
       } else {
-        return res.status(400).send({ messege: "unauthorized access" });
+        return res.status(401).send({ messege: "unauthorized access" });
       }
     }
   );

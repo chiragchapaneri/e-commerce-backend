@@ -248,10 +248,40 @@ async function showcartbyuserid(req, res) {
   }
 }
 
+async function uorderlist(req, res) {
+  // console.log(req.decode._id);
+
+  const data = await Order.find({ userid: req.decode._id })
+    .select({
+      price: 1,
+      quantity: 1,
+      city: 1,
+
+      date: 1,
+    })
+    .populate({
+      path: "productid",
+      model: "product",
+      select: ["productname", "image1", "price"],
+    });
+  if (data != 0) {
+    console.log(data);
+    res.send({
+      message: "order list",
+      data: data,
+    });
+  } else {
+    res.send({
+      message: "data not found",
+    });
+  }
+}
+
 module.exports = {
   addcart,
   Decrease_Quantity,
   showcart,
   showcartbyuserid,
   RemoveCart,
+  uorderlist,
 };

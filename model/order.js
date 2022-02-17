@@ -8,7 +8,7 @@ autoIncrement.initialize(mongoose.connection);
 const Order = mongoose.model(
   "order",
   new mongoose.Schema({
-    _id: { type: Number },
+    _id: { type: String },
     productid: {
       type: Number,
       ref: "product",

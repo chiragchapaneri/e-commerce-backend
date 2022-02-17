@@ -14,7 +14,7 @@ const Cart = mongoose.model(
   "cart",
   mongoose
     .Schema({
-      _id: Number,
+      _id: { type: String },
       productid: {
         type: Number,
         required: true,
