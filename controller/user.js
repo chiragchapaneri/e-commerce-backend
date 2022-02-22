@@ -11,6 +11,7 @@ const {
   uproductbyid,
   newall,
   allproduct,
+  productfilter,
 } = require("../Domain/product.domain");
 const {
   addcart,
@@ -18,12 +19,12 @@ const {
   showcart,
   showcartbyuserid,
   RemoveCart,
-   uorderlist,
+  uorderlist,
 } = require("../Domain/cart.domain");
 const {
   order,
   newcartorders,
- 
+
   news,
 } = require("../Domain/order.domain");
 
@@ -35,6 +36,7 @@ const {
   shiping,
   getstate,
   getuser,
+  setstate,
 } = require("../Domain/user.domain");
 const { usershowcategory } = require("../Domain/category.domain");
 
@@ -71,6 +73,7 @@ route.get("/order/show", verifyusertoken, uorderlist);
 route.get("/cart/show/:id", verifyusertoken, showcartbyuserid);
 
 route.put("/cart/remove", verifyusertoken, RemoveCart);
+route.post("/product/filter", productfilter);
 
 //order
 route.post("/order", verifyusertoken, order);
@@ -84,6 +87,7 @@ route.post("/feedback", verifyusertoken, feedback);
 //shiping
 route.get("/shiping", verifyusertoken, shiping);
 
-route.get("/state", getstate);
+route.get("/state/list", getstate);
+route.post("/state", setstate);
 
 module.exports = route;

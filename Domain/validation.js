@@ -112,7 +112,7 @@ async function update_productvalid(data) {
     price: Joi.number().min(1),
     quantity: Joi.number().min(1),
     details: Joi.object(),
-    productid: Joi.number(),
+    productid: Joi.string(),
     active: Joi.boolean(),
     ram: Joi.string(),
     processor: Joi.string(),

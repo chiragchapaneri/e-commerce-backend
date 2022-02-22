@@ -6,7 +6,8 @@ autoIncrement.initialize(mongoose.connection);
 const Admin = mongoose.model(
   "admin",
   new mongoose.Schema({
-    _id: { type: String },
+    // _id: { type: String },
+    // id: { type: Number },
     firstname: { type: String, required: true },
     lastname: { type: String, required: true },
     mno: {
@@ -32,7 +33,7 @@ const Admin = mongoose.model(
     role: { type: String, default: "admin" },
   }).plugin(autoIncrement.plugin, {
     model: "post",
-    field: "_id",
+    field: "id",
     startAt: 1,
     incrementBy: 1,
   })

@@ -12,14 +12,14 @@ autoIncrement.initialize(mongoose.connection);
 const Shiping = mongoose.model(
   "shiping",
   new mongoose.Schema({
-    _id: { type: String },
+    id: { type: Number },
     userid: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "user",
     },
     productid: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "product",
     },
@@ -35,7 +35,7 @@ const Shiping = mongoose.model(
     },
   }).plugin(autoIncrement.plugin, {
     model: "post",
-    field: "_id",
+    field: "id",
     startAt: 1,
     incrementBy: 1,
   })

@@ -57,7 +57,7 @@ async function signup(req, res) {
         state: req.body.state,
         email: req.body.email,
         password: hash,
-        image: req.image && req.image.url,
+        image: req.image1 && req.image1.url,
       });
       const useradd = savedata.save();
       res.send(savedata);
@@ -73,7 +73,7 @@ async function signup(req, res) {
 async function profile(req, res) {
   try {
     console.log(req.image1);
-    const updateprofile = await User.findByIdAndUpdate(parseInt(req.body.id), {
+    const updateprofile = await User.findByIdAndUpdate(req.body.id, {
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       mno: req.body.mno,
@@ -134,10 +134,17 @@ async function getuser(req, res) {
 }
 
 async function getstate(req, res) {
+  console.log("yesssssss");
   const state = await Country.find();
+
   if (state) {
-    res.send({ state });
+    return res.send({ state });
   }
+}
+
+async function setstate(req, res) {
+  const savedata = new Country({ state: req.body.state, city: req.body.city });
+  const adddata = savedata.save();
 }
 
 async function feedback(req, res) {
@@ -252,4 +259,5 @@ module.exports = {
   getstate,
   getuser,
   profile,
+  setstate,
 };

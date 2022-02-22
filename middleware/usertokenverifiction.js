@@ -14,10 +14,10 @@ async function verifyusertoken(req, res, next) {
       } else {
         if (decode.role == "user") {
           req.decode = decode;
-          console.log(decode );
+          console.log(decode);
           next();
         } else {
-          return res.status(400).send("unauthorized access");
+          return res.status(401).send("unauthorized access");
         }
       }
     }

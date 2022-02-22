@@ -14,14 +14,14 @@ const Cart = mongoose.model(
   "cart",
   mongoose
     .Schema({
-      _id: { type: String },
+      id: { type: Number },
       productid: {
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: "product",
       },
       userid: {
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: "user",
       },
@@ -34,7 +34,7 @@ const Cart = mongoose.model(
     })
     .plugin(autoIncrement.plugin, {
       model: "post",
-      field: "_id",
+      field: "id",
       startAt: 1,
       incrementBy: 1,
     })

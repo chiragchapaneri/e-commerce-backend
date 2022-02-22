@@ -1,4 +1,6 @@
 const express = require("express");
+const mongoose = require("mongoose");
+
 const req = require("express/lib/request");
 const route = express.Router();
 const { update_productvalid } = require("./validation");
@@ -17,7 +19,6 @@ const {
 const { uploadimages } = require("../middleware/imageupload");
 //Admin
 async function productbyid(req, res) {
-  console.log(req.params);
   const addproduct = await Product.findOne({ _id: req.params.id });
 
   //find product by id
@@ -29,17 +30,85 @@ async function productbyid(req, res) {
 }
 //show all product
 async function allproduct(req, res) {
-  const addproduct = await Product.find().populate({
-    path: "category",
-    model: "category",
-    select: ["categoryname"],
-  });
+  console.log("running");
+  const addproduct = await Product.find().populate("category");
 
   if (addproduct.length != 0) {
-    console.log(addproduct);
-    res.send({ data: addproduct });
+    return res.send({ data: addproduct });
   } else {
     res.send({ messege: "data not founf" });
+  }
+}
+
+async function fillterproduct(req, res) {
+  if (req.body.price) {
+    const sortdata = await Product.find()
+      .populate({
+        path: "category",
+        model: "category",
+        select: ["categoryname"],
+      })
+      .sort({ price: parseInt(req.body.price) });
+
+    if (sortdata.length != 0) {
+      res.send({ data: sortdata });
+    } else {
+      res.send({ messege: "data not founf" });
+    }
+  }
+  if (req.body.name) {
+    console.log(req.body.name);
+    const sortdata = await Product.find()
+      .populate({
+        path: "category",
+        model: "category",
+        select: ["categoryname"],
+      })
+      .sort({ productname: parseInt(req.body.name) });
+
+    if (sortdata.length != 0) {
+      res.send({ data: sortdata });
+    } else {
+      res.send({ messege: "data not founf" });
+    }
+  }
+  if (req.body.category) {
+    const sortdata = await Product.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+
+      {
+        $sort: {
+          "category.categoryname": parseInt(req.body.category)
+            ? parseInt(req.body.category)
+            : 1,
+        },
+      },
+
+      {
+        $project: {
+          "category.categoryname": true,
+          productname: 1,
+          price: 1,
+          quantity: 1,
+          image1: 1,
+
+          active: 1,
+        },
+      },
+    ]);
+
+    if (sortdata.length != 0) {
+      res.send({ data: sortdata });
+    } else {
+      res.send({ messege: "data not founf" });
+    }
   }
 }
 
@@ -57,8 +126,8 @@ async function findone(req, res) {
     {
       $match: {
         "category.active": true,
-        price: { $gt: 200 },
-        _id: req.params.id,
+
+        _id: mongoose.Types.ObjectId(req.params.id),
       },
     },
     {
@@ -67,20 +136,16 @@ async function findone(req, res) {
         productname: 1,
       },
     },
-  ]).select();
+  ]);
   if (productdata != 0) res.send(productdata);
   else {
     res.send("done");
   }
-  console.log(productdata);
 }
 
 //update product
 async function updateproduct(req, res) {
-  console.log("in update");
-  console.log(req.body);
   const price = parseInt(req.body.price);
-  console.log(typeof image1);
 
   const data = await update_productvalid(req.body);
   if (data.error) {
@@ -113,7 +178,6 @@ async function updateproduct(req, res) {
         }
       );
 
-      console.log(updateproduct);
       const data = await Product.findById(req.body.productid);
 
       if (updateproduct) {
@@ -131,12 +195,10 @@ async function updateproduct(req, res) {
   }
 }
 async function productadd(req, res) {
-  // console.log(req.body);
   // const valid = await productvalid(req.body);
 
   try {
     const images = await uploadimages(req.files);
-    console.log(req.files);
 
     // if (valid.error) {
     //   return res.send({ err: valid.error.details[0] });
@@ -164,13 +226,10 @@ async function productadd(req, res) {
 
     res.send(savedata);
     // }
-  } catch (er) {
-    console.log(er);
-  }
+  } catch (er) {}
 }
 //delete products
 async function productdelete(req, res) {
-  console.log(req.params.id);
   const find = await Product.findByIdAndDelete(req.params.id);
 
   if (!find) {
@@ -231,8 +290,6 @@ async function newall(req, res) {
 //show all product by product name
 
 async function productByname(req, res) {
-  console.log(req.body);
-  console.log("req.body");
   const { error } = await validproductname(req.body);
   if (error) {
     return res.send({
@@ -251,6 +308,7 @@ async function productByname(req, res) {
     {
       $match: {
         "category.active": true,
+
         active: true,
         productname: { $regex: req.body.productname },
       },
@@ -265,6 +323,7 @@ async function productByname(req, res) {
         image1: 1,
         image2: 1,
         image3: 1,
+        "category.categoryname": true,
       },
     },
   ]);
@@ -282,60 +341,52 @@ async function productByname(req, res) {
 
 // show all product by category name
 async function productbycategory(req, res) {
-  console.log(req.params.id);
-  console.log();
-  // const { error } = await validproductserch(req.body);
-  const productdata = await Product.find();
-
-  // if (error) {
-  //   return res.status(404).send({ messege: error.details[0].message });
-  // }
-
-  const data = await Product.aggregate([
-    {
-      $lookup: {
-        from: "categories",
-        localField: "category",
-        foreignField: "_id",
-        as: "category",
+  try {
+    const data = await Product.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
       },
-    },
-    {
-      $match: {
-        "category.categoryname": req.params.id,
+      {
+        $match: {
+          "category.categoryname": req.params.id,
+        },
       },
-    },
 
-    {
-      $project: {
-        "category.categoryname": true,
-        "category._id": true,
-        productname: 1,
-        price: 1,
-        details: 1,
-        image1: 1,
-        status: 1,
+      {
+        $project: {
+          "category.categoryname": true,
+          "category._id": true,
+          productname: 1,
+          price: 1,
+          details: 1,
+          image1: 1,
+          status: 1,
+        },
       },
-    },
-  ]);
-  if (data.length == 0) {
-    return res.status(200).json({
-      message: "data not foound..",
-    });
-  } else {
-    res.send({
-      message: "successfull",
-      data: data,
-    });
+    ]);
+    if (data.length == 0) {
+      return res.status(200).json({
+        message: "data not foound..",
+      });
+    } else {
+      res.send({
+        message: "successfull",
+        data: data,
+      });
+    }
+  } catch (er) {
+    console.log(er);
   }
 }
 // show all product by id
 
 async function uproductbyid(req, res) {
-  console.log(req.params.id);
-
   const addproduct = await Product.findOne({ _id: req.params.id });
-  console.log("doone");
 
   if (addproduct) {
     res.send({
@@ -351,7 +402,6 @@ async function uproductbyid(req, res) {
 //show all product by product name
 
 async function productbyname(req, res) {
-  console.log(req.body);
   const { error } = await validproductname(req.body);
   if (error) {
     return res.send({
@@ -396,6 +446,32 @@ async function productbyname(req, res) {
   }
 }
 
+async function productfilter(req, res) {
+  if (req.body.value === "high-low") {
+    const data = await Product.find().populate("category").sort({ price: -1 });
+
+    const filterdata = data.filter((data) => {
+      return data.category.categoryname === req.body.category;
+    });
+
+    return res.status(200).send(filterdata);
+  }
+  if (req.body.value === "low-high") {
+    const data = await Product.find().sort({ price: 1 }).populate("category");
+    const filterdata = data.filter((data) => {
+      return data.category.categoryname === req.body.category;
+    });
+    return res.status(200).send(filterdata);
+  }
+  if (req.body.value === "latest") {
+    const data = await Product.find().sort({ date: -1 }).populate("category");
+    const filterdata = data.filter((data) => {
+      return data.category.categoryname === req.body.category;
+    });
+    return res.status(200).send(filterdata);
+  }
+}
+
 module.exports = {
   productbyid,
   updateproduct,
@@ -403,7 +479,8 @@ module.exports = {
   allproduct,
   productadd,
   productdelete, //
-
+  fillterproduct,
+  productfilter,
   newall,
   productByname,
   productbycategory,

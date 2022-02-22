@@ -1,4 +1,6 @@
 const express = require("express");
+const mongoose = require("mongoose");
+
 const {
   uservalid,
   validproductserch,
@@ -21,10 +23,7 @@ const { number } = require("joi");
 async function addcart(req, res) {
   const productdata = await Product.findOne({
     _id: req.body.productid,
-  }).and({
-    active: true,
   });
-
   if (productdata === null) {
     return res.send({ message: "invalid id.." });
   } else {
@@ -136,7 +135,7 @@ async function showcart(req, res) {
     },
     {
       $match: {
-        userid: req.decode._id,
+        userid: mongoose.Types.ObjectId(req.decode._id),
       },
     },
 
@@ -184,6 +183,12 @@ async function showcart(req, res) {
 }
 
 async function showcartbyuserid(req, res) {
+  console.log(req.params.id);
+  const id = req.params.id;
+  const userdata = await Cart.find({ userid: id }).populate("userid");
+  console.log(userdata);
+
+  // try {
   const data = await Cart.aggregate([
     {
       $lookup: {
@@ -195,7 +200,7 @@ async function showcartbyuserid(req, res) {
     },
     {
       $match: {
-        userid: parseInt(req.params.id),
+        userid: mongoose.Types.ObjectId(req.params.id),
       },
     },
 
@@ -214,6 +219,11 @@ async function showcartbyuserid(req, res) {
       },
     },
   ]);
+  // } catch (er) {
+  //   console.log(er);
+  // }
+
+  // console.log(`use cart${data}`);
   let subtotal = 0;
   if (data.length !== 0) {
     const showdata = data.map((data, index) => {
@@ -223,17 +233,18 @@ async function showcartbyuserid(req, res) {
         data.quantity <= data.products[0].quantity
       ) {
         data.message = "avalible";
-        console.log(data.products[0]._id);
-        console.log(data.quantity);
+
         subtotal += data.quantity * data.products[0].price;
         return data;
-      } else if (data.products[0].quantity > 0) {
+      } else if (
+        data.products[0].quantity > 0 &&
+        data.products[0].active == true
+      ) {
         data.err = `plese enter ${data.products[0].quantity} quantity`;
-        console.log(index);
+
         return data;
       } else {
         data.err = `out of stock`;
-
         return data;
       }
     });

@@ -4,15 +4,16 @@ const cloudinary = require("../Domain/cloudinary");
 
 async function verifyadmintoken(req, res, next) {
   const token = req.headers["token"];
+  console.log(token);
 
-  console.log("token");
   jwt.verify(
     token,
     global.config.secretkey,
     { algorithms: global.config.algorithms },
 
     (err, decode) => {
-      if (decode.role == "admin") {
+      console.log(decode);
+      if (decode.role === "admin") {
         req.decode = decode;
         next();
       } else {

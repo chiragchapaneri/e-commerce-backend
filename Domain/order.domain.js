@@ -146,7 +146,8 @@ async function newcartorders(req, res) {
 
   // console.log(req.body[0].products[0]._id);
 
-  console.log(`length=${req.body.length}`);
+  console.log(`length=${req.body._id}`);
+  console.log(`length=${req.body.quantity}`);
   if (!req.body.length) {
     const order = new Order({
       productid: req.body._id,
@@ -167,7 +168,7 @@ async function newcartorders(req, res) {
     if (savedata) {
       const productdetails = await Product.updateOne(
         {
-          _id: req.body.productid,
+          _id: req.body._id,
         },
         { $inc: { quantity: -req.body.quantity } }
       );
@@ -196,11 +197,11 @@ async function newcartorders(req, res) {
         if (savedata) {
           const productdetails = await Product.updateOne(
             {
-              _id: data.productid,
+              _id: data.products[0]._id,
             },
-            { $inc: { quantity: -req.body[0].quantity } }
+            { $inc: { quantity: -data.quantity } }
           );
-          const cartdetails = await Cart.findByIdAndRemove(data._id);
+          // const cartdetails = await Cart.findByIdAndRemove(data._id);
           // const cartdetails = await Cart.findByIdAndRemove(req.body[0]._id);
         }
       });
@@ -296,8 +297,224 @@ async function newcartorders(req, res) {
 // }
 // }
 
-async function news(req, res) {
-  console.log("yes");
+async function orderlistforadmin(req, res) {
+  const data = await Order.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "productid",
+        foreignField: "_id",
+        as: "productid",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userid",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $project: {
+        "productid.productname": 1,
+        "productid.price": 1,
+        city: 1,
+        "user.firstname": 1,
+        "user.image": 1,
+        "productid.image1": 1,
+        date: 1,
+        quantity: 1,
+      },
+    },
+  ]);
+  data.map((data) => {
+    console.log(data);
+  });
+
+  if (data != 0) {
+    // console.log(data);
+    res.send({
+      length: data.length,
+      message: "order list",
+      data: data,
+    });
+  } else {
+    res.send({
+      message: "data not found",
+    });
+  }
 }
 
-module.exports = { orderlist, order, newcartorders, uorderlist, news };
+async function sortorder(req, res) {
+  console.log(req.body.productname);
+  if (req.body.productname) {
+    const data = await Order.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "productid",
+          foreignField: "_id",
+          as: "productid",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "userid",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+
+      {
+        $sort: {
+          "productid.productname": req.body.productname,
+        },
+      },
+
+      {
+        $project: {
+          "productid.productname": 1,
+          "productid.price": 1,
+          city: 1,
+          "user.firstname": 1,
+          "user.image": 1,
+          "productid.image1": 1,
+          date: 1,
+          quantity: 1,
+        },
+      },
+    ]);
+
+    if (data != 0) {
+      // console.log(data);
+      res.send({
+        length: data.length,
+        message: "order list",
+        data: data,
+      });
+    } else {
+      res.send({
+        message: "data not found",
+      });
+    }
+  }
+
+  if (req.body.location) {
+    const data = await Order.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "productid",
+          foreignField: "_id",
+          as: "productid",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "userid",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+
+      {
+        $sort: {
+          city: req.body.location,
+        },
+      },
+
+      {
+        $project: {
+          "productid.productname": 1,
+          "productid.price": 1,
+          city: 1,
+          "user.firstname": 1,
+          "user.image": 1,
+          "productid.image1": 1,
+          date: 1,
+          quantity: 1,
+        },
+      },
+    ]);
+
+    if (data != 0) {
+      // console.log(data);
+      res.send({
+        length: data.length,
+        message: "order list",
+        data: data,
+      });
+    } else {
+      res.send({
+        message: "data not found",
+      });
+    }
+  }
+  if (req.body.date) {
+    const data = await Order.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "productid",
+          foreignField: "_id",
+          as: "productid",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "userid",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+
+      {
+        $sort: {
+          date: req.body.date,
+        },
+      },
+
+      {
+        $project: {
+          "productid.productname": 1,
+          "productid.price": 1,
+          city: 1,
+          "user.firstname": 1,
+          "user.image": 1,
+          "productid.image1": 1,
+          date: 1,
+          quantity: 1,
+        },
+      },
+    ]);
+
+    if (data !== 0) {
+      res.send({
+        length: data.length,
+        message: "order list",
+        data: data,
+      });
+    } else {
+      res.send({
+        message: "data not found",
+      });
+    }
+  }
+}
+
+module.exports = {
+  orderlist,
+  order,
+  newcartorders,
+  uorderlist,
+  orderlistforadmin,
+  sortorder,
+};

@@ -9,10 +9,15 @@ const {
   deletecategory,
   updatecategory,
 } = require("../Domain/category.domain");
-const { orderlist } = require("../Domain/order.domain");
+const {
+  orderlist,
+  orderlistforadmin,
+  sortorder,
+} = require("../Domain/order.domain");
 
 const {
   productbyid,
+  fillterproduct,
   productadd,
   productdelete,
   allproduct,
@@ -39,10 +44,15 @@ route.delete("/product/delete/:id", verifyadmintoken, productdelete);
 
 //show all product
 route.get("/product", verifyadmintoken, allproduct);
+route.post("/product", verifyadmintoken, fillterproduct);
 
 //show  product by id
 route.get("/product/:id", verifyadmintoken, productbyid);
 
 route.put("/product/update", upload, verifyadmintoken, updateproduct);
-route.get("/orderlist", verifyadmintoken, orderlist);
+// route.get("/orderlist", verifyadmintoken, orderlist);
+
+route.get("/orderlist", verifyadmintoken, orderlistforadmin);
+route.post("/orderlist/sort", verifyadmintoken, sortorder);
+
 module.exports = route;

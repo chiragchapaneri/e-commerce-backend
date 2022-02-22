@@ -30,7 +30,7 @@ const Feedback = mongoose.model(
     },
   }).plugin(autoIncrement.plugin, {
     model: "post",
-    field: "_id",
+    field: "id",
     startAt: 1,
     incrementBy: 1,
   })

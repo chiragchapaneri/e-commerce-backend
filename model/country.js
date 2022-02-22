@@ -6,12 +6,12 @@ autoIncrement.initialize(mongoose.connection);
 const Country = mongoose.model(
   "country",
   new mongoose.Schema({
-    _id: { type: String },
-    state: { type: String, required: true },
-    city: { type: String, required: true },
+    id: { type: Number },
+    state: { type: String },
+    city: { type: String },
   }).plugin(autoIncrement.plugin, {
     model: "post",
-    field: "_id",
+    field: "id",
     startAt: 1,
     incrementBy: 1,
   })

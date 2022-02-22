@@ -8,14 +8,14 @@ autoIncrement.initialize(mongoose.connection);
 const Order = mongoose.model(
   "order",
   new mongoose.Schema({
-    _id: { type: String },
+    id: { type: Number },
     productid: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "product",
       required: true,
     },
     userid: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
     },
@@ -29,7 +29,7 @@ const Order = mongoose.model(
     state: { type: String },
   }).plugin(autoIncrement.plugin, {
     model: "post",
-    field: "_id",
+    field: "id",
     startAt: 1,
     incrementBy: 1,
   })
