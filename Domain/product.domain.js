@@ -6,6 +6,7 @@ const route = express.Router();
 const { update_productvalid } = require("./validation");
 const jwt = require("jsonwebtoken");
 const Product = require("../model/productmodel");
+const Cart = require("../model/productmodel");
 const { productvalid } = require("./validation");
 const cloudinary = require("./cloudinary");
 
@@ -30,7 +31,6 @@ async function productbyid(req, res) {
 }
 //show all product
 async function allproduct(req, res) {
-  console.log("running");
   const addproduct = await Product.find().populate("category");
 
   if (addproduct.length != 0) {
@@ -57,7 +57,6 @@ async function fillterproduct(req, res) {
     }
   }
   if (req.body.name) {
-    console.log(req.body.name);
     const sortdata = await Product.find()
       .populate({
         path: "category",
@@ -296,37 +295,11 @@ async function productByname(req, res) {
       message: error.details[0].message,
     });
   }
-  const data = await Product.aggregate([
-    {
-      $lookup: {
-        from: "categories",
-        localField: "category",
-        foreignField: "_id",
-        as: "category",
-      },
-    },
-    {
-      $match: {
-        "category.active": true,
 
-        active: true,
-        productname: { $regex: req.body.productname },
-      },
-    },
+  const data = await Product.find({
+    productname: { $regex: req.body.productname },
+  }).populate("category");
 
-    {
-      $project: {
-        productname: 1,
-        price: 1,
-        details: 1,
-        quantity: 1,
-        image1: 1,
-        image2: 1,
-        image3: 1,
-        "category.categoryname": true,
-      },
-    },
-  ]);
   if (data.length == 0) {
     return res.status(200).json({
       message: "data not foound..",
@@ -387,10 +360,11 @@ async function productbycategory(req, res) {
 
 async function uproductbyid(req, res) {
   const addproduct = await Product.findOne({ _id: req.params.id });
+  console.log("kabsjcbjasbcjbaskjcbjakscbjkbsac");
 
   if (addproduct) {
     res.send({
-      messege: "successull",
+      messege: "successull ascasc",
       data: addproduct,
     });
   } else {
@@ -402,12 +376,15 @@ async function uproductbyid(req, res) {
 //show all product by product name
 
 async function productbyname(req, res) {
+  console.log(req.body.productname);
+  console.log("req.body");
   const { error } = await validproductname(req.body);
   if (error) {
     return res.send({
       message: error.details[0].message,
     });
   }
+
   const data = await Product.aggregate([
     {
       $lookup: {
@@ -436,7 +413,7 @@ async function productbyname(req, res) {
   ]);
   if (data.length == 0) {
     return res.status(200).json({
-      message: "data not foound..",
+      message: "data not a foound..",
     });
   } else {
     res.send({

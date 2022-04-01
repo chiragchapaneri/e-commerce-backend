@@ -3,12 +3,6 @@ const { boolean } = require("joi");
 const mongoose = require("mongoose");
 const autoIncrement = require("mongoose-auto-increment");
 
-// mongoose
-//   .connect("mongodb://localhost:27017/project", {
-//     useNewUrlParser: true,
-//   })
-//   .then(() => console.log("db is connected"))
-//   .catch((err) => console.log(err));
 autoIncrement.initialize(mongoose.connection);
 
 const Product = mongoose.model(

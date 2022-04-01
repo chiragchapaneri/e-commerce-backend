@@ -40,7 +40,6 @@ async function categoryvalid(data) {
   const schema = Joi.object({
     categoryname: Joi.string().max(30).required(),
   });
-  console.log("invalid");
   return schema.validate(data);
 }
 

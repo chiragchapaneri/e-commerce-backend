@@ -1,5 +1,4 @@
 const express = require("express");
-const { Country } = require("./model/country");
 const app = express();
 app.use(express.json());
 const cors = require("cors");
@@ -22,7 +21,6 @@ app.use(express.Router());
 
 const user = require("./controller/user");
 const admin = require("./controller/admin");
-const bodyParser = require("body-parser");
 
 mongoose
   .connect(process.env.con, {

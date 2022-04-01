@@ -9,7 +9,6 @@ async function uservalid(data) {
   //   return res.send({ message: "mno length must be 10" });
   // }
   data.Mno = data.mno.toString();
-  console.log(data);
   const schema = Joi.object({
     firstname: Joi.string().alphanum().min(3).max(30).required(),
     lastname: Joi.string().alphanum().min(3).max(30).required(),
@@ -30,14 +29,11 @@ async function uservalid(data) {
   return schema.validate(data);
 }
 
-async function validmumber(data) {
-  console.log("done");
-}
+async function validmumber(data) {}
 
 async function valid_updatecategory(data) {
-  console.log("done");
   const schema = Joi.object({
-    categoryid: Joi.number().integer().min(1).required(),
+    categoryid: Joi.string().min(1).required(),
     active: Joi.boolean().required(),
   });
   return schema.validate(data);
@@ -47,7 +43,7 @@ async function categoryvalid(data) {
   const schema = Joi.object({
     categoryname: Joi.string().max(30).required(),
   });
-  console.log("invalid");
+
   return schema.validate(data);
 }
 
@@ -85,7 +81,7 @@ async function categoryvalid(data) {
   const schema = Joi.object({
     categoryname: Joi.string().required(),
   });
-  console.log("invalid");
+
   return schema.validate(data);
 }
 

@@ -1,7 +1,5 @@
-const { boolean } = require("joi");
 const mongoose = require("mongoose");
 const autoIncrement = require("mongoose-auto-increment");
-const Product = require("./productmodel");
 
 autoIncrement.initialize(mongoose.connection);
 
@@ -22,7 +20,7 @@ const Order = mongoose.model(
 
     quantity: { type: Number, required: true },
     total: { type: Number },
-    date: { type: Date, default: new Date() },
+    date: { type: Date, timestamps: false },
     addressline1: { type: String },
     addressline2: { type: String },
     city: { type: String },

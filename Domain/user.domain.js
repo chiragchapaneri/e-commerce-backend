@@ -44,7 +44,7 @@ async function signup(req, res) {
     //   return res.status(404).send({ message: valid.error.details[0].message });
     // } else {
     try {
-      const hash = bcrypt.hashSync(req.body.password, 10);
+      // const hash = bcrypt.hashSync(req.body.password, 10);
       const savedata = new User({
         firstname: req.body.firstname,
         lastname: req.body.lastname,
@@ -56,7 +56,7 @@ async function signup(req, res) {
         city: req.body.city,
         state: req.body.state,
         email: req.body.email,
-        password: hash,
+        password: req.body.password,
         image: req.image1 && req.image1.url,
       });
       const useradd = savedata.save();
@@ -72,23 +72,26 @@ async function signup(req, res) {
 
 async function profile(req, res) {
   try {
-    console.log(req.image1);
-    const updateprofile = await User.findByIdAndUpdate(req.body.id, {
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      mno: req.body.mno,
+    console.log(req.body.city);
+    const updateprofile = await User.findByIdAndUpdate(
+      req.body.id,
+      {
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        mno: req.body.mno,
 
-      flate_name: req.body.flate_name,
-      nearby: req.body.nearby,
+        flate_name: req.body.flate_name,
+        nearby: req.body.nearby,
 
-      city: req.body.city,
+        city: req.body.city,
 
-      image: req.image1 && req.image1.url,
-    });
-    const useradd = updateprofile.save();
+        image: req.image1 && req.image1.url,
+      },
+      {
+        new: true,
+      }
+    );
     res.send(updateprofile);
-
-    console.log(useradd);
   } catch (err) {
     return res.status(404).send({ err: err.message });
   }
@@ -106,10 +109,12 @@ async function login(req, res) {
           algorithm: global.config.algorithm,
           expiresIn: "5000m",
         });
+        const cart = await Cart.find({ userid: userdata._id });
 
         res.status(200).json({
           token: token,
           id: userdata._id,
+          cart: cart.length,
         });
       } else {
         res.status(400).send("Invalid Email or Password");

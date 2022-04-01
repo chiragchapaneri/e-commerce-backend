@@ -9,7 +9,6 @@ const bcrypt = require("bcrypt");
 //admin signup
 async function adminsignup(req, res) {
   const valid = await adminvalid(req.body); //validation
-  console.log(req.body.password);
   if (valid.error) {
     return res.status(404).send({ message: valid.error.details[0].message });
   } else {
@@ -39,7 +38,6 @@ async function adminsignup(req, res) {
 
 async function adminlogin(req, res) {
   try {
-    console.log(req.body);
     const userdata = await Admin.findOne({
       email: req.body.email,
     });

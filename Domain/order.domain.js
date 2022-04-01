@@ -1,5 +1,6 @@
 const express = require("express");
 const req = require("express/lib/request");
+const mongoose = require("mongoose");
 const route = express.Router();
 const { Admin } = require("../model/adminmodel");
 const {
@@ -46,6 +47,51 @@ async function uorderlist(req, res) {
       select: ["firstname"],
     });
 
+  // data.map((data) => {
+  //   console.log(typeof data.date);
+  // });
+
+  // const data = await Order.aggregate([
+  //   {
+  //     $lookup: {
+  //       from: "products",
+  //       localField: "productid",
+  //       foreignField: "_id",
+  //       as: "productid",
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       userid: mongoose.Types.ObjectId(req.params.id),
+  //     },
+  //   },
+
+  //   {
+  //     $project: {
+  //       "products.productname": true,
+  //       "products.price": true,
+  //       "products.quantity": true,
+  //       "products.active": true,
+  //       "products._id": true,
+  //       "products.image1": true,
+  //       "products.image2": true,
+  //       userid: true,
+  //       total: true,
+  //       quantity: true,
+  //     },
+  //   },
+
+  //   {
+  //     $sort: {
+  //       quantity: -1,
+  //     },
+  //   },
+
+  //   {
+  //     $unwind: "$products",
+  //   },
+  // ]);
+
   if (data != 0) {
     res.status(200).send({
       message: "order list",
@@ -57,8 +103,6 @@ async function uorderlist(req, res) {
     });
   }
 }
-//user
-//one
 
 async function order(req, res) {
   const findproduct = await Product.findById(req.body.productid);
@@ -73,7 +117,7 @@ async function order(req, res) {
   } else {
     const total = findproduct.price * req.body.quantity;
     const lastquantity = findproduct.quantity - req.body.quantity;
-    console.log(req.decode);
+
     const orderdata = new Order({
       quantity: req.body.quantity,
       userid: req.decode._id,
@@ -114,8 +158,6 @@ async function order(req, res) {
 }
 
 async function orderlist(req, res) {
-  // console.log(req.decode._id);
-
   const data = await Order.find({ userid: req.decode._id })
     .select({
       price: 1,
@@ -129,7 +171,6 @@ async function orderlist(req, res) {
       select: ["productname"],
     });
   if (data != 0) {
-    console.log(data);
     res.send({
       message: "order list",
       data: data,
@@ -142,27 +183,24 @@ async function orderlist(req, res) {
 }
 
 async function newcartorders(req, res) {
-  // console.log(req.body);
-
-  // console.log(req.body[0].products[0]._id);
-
-  console.log(`length=${req.body._id}`);
-  console.log(`length=${req.body.quantity}`);
+  // console.log(todaydate);
+  // console.log(typeof todaydate);
+  const order = new Order({
+    productid: req.body._id,
+    userid: req.body.userid,
+    quantity: req.body.quantity,
+    total: req.body.total,
+    addressline1: req.body.addressline1
+      ? req.body.addressline1
+      : req.decode.flate_name,
+    addressline2: req.body.addressline2
+      ? req.body.addressline2
+      : req.decode.nearby,
+    city: req.body.city ? req.body.city : req.decode.city,
+    state: req.body.state ? req.body.state : req.decode.state,
+    date: new Date(),
+  });
   if (!req.body.length) {
-    const order = new Order({
-      productid: req.body._id,
-      userid: req.body.userid,
-      quantity: req.body.quantity,
-      total: req.body.total,
-      addressline1: req.body.addressline1
-        ? req.body.addressline1
-        : req.decode.flate_name,
-      addressline2: req.body.addressline2
-        ? req.body.addressline2
-        : req.decode.nearby,
-      city: req.body.city ? req.body.city : req.decode.city,
-      state: req.body.state ? req.body.state : req.decode.state,
-    });
     const savedata = await order.save();
 
     if (savedata) {
@@ -177,9 +215,8 @@ async function newcartorders(req, res) {
   } else {
     try {
       req.body.map(async (data) => {
-        console.log(data);
         const order = new Order({
-          productid: data.products[0]._id,
+          productid: mongoose.Types.ObjectId(data.products._id),
           userid: data.userid,
           quantity: data.quantity,
           total: data.total,
@@ -191,18 +228,22 @@ async function newcartorders(req, res) {
             : req.decode.nearby,
           city: data.city ? data.city : req.decode.city,
           state: data.state ? data.state : req.decode.state,
+          date: new Date(),
         });
         const savedata = await order.save();
 
         if (savedata) {
           const productdetails = await Product.updateOne(
             {
-              _id: data.products[0]._id,
+              _id: mongoose.Types.ObjectId(data.products._id),
             },
             { $inc: { quantity: -data.quantity } }
           );
-          // const cartdetails = await Cart.findByIdAndRemove(data._id);
-          // const cartdetails = await Cart.findByIdAndRemove(req.body[0]._id);
+          const cartdetails = await Cart.remove({
+            productid: data.products._id,
+          }).and({
+            userid: data.userid,
+          });
         }
       });
 
@@ -329,12 +370,10 @@ async function orderlistforadmin(req, res) {
       },
     },
   ]);
-  data.map((data) => {
-    console.log(data);
-  });
+  data.map((data) => {});
 
   if (data != 0) {
-    // console.log(data);
+    //
     res.send({
       length: data.length,
       message: "order list",
@@ -348,7 +387,6 @@ async function orderlistforadmin(req, res) {
 }
 
 async function sortorder(req, res) {
-  console.log(req.body.productname);
   if (req.body.productname) {
     const data = await Order.aggregate([
       {
@@ -390,7 +428,7 @@ async function sortorder(req, res) {
     ]);
 
     if (data != 0) {
-      // console.log(data);
+      //
       res.send({
         length: data.length,
         message: "order list",
@@ -444,7 +482,7 @@ async function sortorder(req, res) {
     ]);
 
     if (data != 0) {
-      // console.log(data);
+      //
       res.send({
         length: data.length,
         message: "order list",

@@ -4,6 +4,7 @@ const route = express.Router();
 const { categoryvalid, valid_updatecategory } = require("./validation");
 const jwt = require("jsonwebtoken");
 const { Category } = require("../model/categorymodel");
+const Product = require("../model/productmodel");
 
 //admin
 
@@ -19,9 +20,19 @@ async function showcategory(req, res) {
 //delete category
 async function deletecategory(req, res) {
   const deleted = await Category.findByIdAndDelete(req.params.id);
-  console.log(typeof deleted);
-  console.log(deleted);
+
   if (deleted) {
+    const updateproduct = await Product.find({
+      category: req.params.id,
+    });
+    if (updateproduct.length >= 1) {
+      const update = updateproduct.map(async (data) => {
+        const updateproductstatus = await Product.findByIdAndRemove(data._id, {
+          category: req.params.id,
+        });
+      });
+    }
+
     res.send({ messege: "successfull", data: deleted });
   } else {
     res.send({ messege: "id not found" });
@@ -53,7 +64,6 @@ async function addcategory(req, res) {
 }
 //update category
 async function updatecategory(req, res) {
-  console.log(req.body);
   const data = await valid_updatecategory(req.body);
   if (data.error) {
     return res.send({ message: data.error.details[0].message });
@@ -63,6 +73,20 @@ async function updatecategory(req, res) {
     });
 
     if (updatecat) {
+      const updateproduct = await Product.find({
+        category: req.body.categoryid,
+      });
+      if (updateproduct.length >= 1) {
+        const update = updateproduct.map(async (data) => {
+          const updateproductstatus = await Product.findByIdAndUpdate(
+            data._id,
+            {
+              active: req.body.active,
+            }
+          );
+        });
+      }
+      // console.log(updateproduct.length);
       const updatedata = await Category.findById(req.body.categoryid);
 
       return res.send({ messege: "update successfull", data: updatecat });
@@ -71,8 +95,6 @@ async function updatecategory(req, res) {
     }
   }
 }
-
-//user show category usershowcategory
 
 async function usershowcategory(req, res) {
   const findcategory = await Category.find({ active: true });

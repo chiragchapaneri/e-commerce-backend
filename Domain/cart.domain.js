@@ -17,8 +17,7 @@ const Shiping = require("../model/shipingmodel");
 const Feedback = require("../model/feedback");
 const { User } = require("../model/usermodel");
 const { number } = require("joi");
-
-//user
+const { json } = require("body-parser");
 
 async function addcart(req, res) {
   const productdata = await Product.findOne({
@@ -27,9 +26,13 @@ async function addcart(req, res) {
   if (productdata === null) {
     return res.send({ message: "invalid id.." });
   } else {
-    const user_product = await Cart.findOne({ userid: req.decode._id }).and({
-      productid: req.body.productid,
+    const user_product = await Cart.findOne({
+      $and: [
+        { userid: req.decode._id },
+        { productid: mongoose.Types.ObjectId(req.body.productid) },
+      ],
     });
+    console.log(`data${user_product}`);
 
     if (user_product) {
       if (req.body.quantity + user_product.quantity <= productdata.quantity) {
@@ -45,7 +48,13 @@ async function addcart(req, res) {
         });
         if (update) {
           const updatedda = await Cart.findById(user_product._id);
-          return res.send({ message: "suuccessfull..", data: updatedda });
+
+          const cartlength = await Cart.find({ userid: req.decode._id });
+          return res.send({
+            message: "suuccessfull..",
+            data: updatedda,
+            cartlength: cartlength.length,
+          });
         }
       } else {
         return res.send({
@@ -61,8 +70,9 @@ async function addcart(req, res) {
         req.body.total = total;
         const addcart = new Cart(req.body);
         const data = await addcart.save();
+        const cartlength = await Cart.find({ userid: req.decode._id });
 
-        res.send(data);
+        res.send({ data: data, cartlength: cartlength.length });
       } else {
         return res.status(400).send({
           message: `you can add max ${productdata.quantity} quantity`,
@@ -73,15 +83,17 @@ async function addcart(req, res) {
 }
 
 async function RemoveCart(req, res) {
-  console.log("yexs");
   const user_productdata = await Cart.findOne({ userid: req.decode._id }).and({
     productid: req.body.productid,
   });
 
   if (user_productdata) {
     const remove = await Cart.findByIdAndRemove(user_productdata._id);
+    const cartlength = await Cart.find({ userid: req.decode._id });
     if (remove) {
-      res.status(200).send("product is remove");
+      res
+        .status(200)
+        .send({ message: "product is remove", cartlength: cartlength.length });
     }
   }
 }
@@ -156,14 +168,14 @@ async function showcart(req, res) {
     const showdata = data.map((data, index) => {
       if (
         data.quantity >= 1 &&
-        data.products[0].active == true &&
-        data.quantity <= data.products[0].quantity
+        data.products.active == true &&
+        data.quantity <= data.products.quantity
       ) {
         data.message = "avalible";
-        subtotal += data.quantity * data.products[0].price;
+        subtotal += data.quantity * data.products.price;
         return data;
-      } else if (data.products[0].quantity > 0) {
-        data.err = `plese enter ${data.products[0].quantity} quantity`;
+      } else if (data.products.quantity > 0) {
+        data.err = `plese enter ${data.products.quantity} quantity`;
         return data;
       } else {
         data.err = `out of stock`;
@@ -183,10 +195,7 @@ async function showcart(req, res) {
 }
 
 async function showcartbyuserid(req, res) {
-  console.log(req.params.id);
   const id = req.params.id;
-  const userdata = await Cart.find({ userid: id }).populate("userid");
-  console.log(userdata);
 
   // try {
   const data = await Cart.aggregate([
@@ -218,29 +227,55 @@ async function showcartbyuserid(req, res) {
         quantity: true,
       },
     },
+
+    {
+      $sort: {
+        quantity: -1,
+      },
+    },
+
+    {
+      $unwind: "$products",
+    },
   ]);
   // } catch (er) {
-  //   console.log(er);
+  //
   // }
 
-  // console.log(`use cart${data}`);
+  //
+
+  // const news = await Cart.find({ userid: req.params.id }).populate(
+  //   "productid",
+  //   { price: -1 }
+  // );
+  // console.log(news);znm
+
+  const datass = await Cart.find({
+    userid: mongoose.Types.ObjectId(req.decode._id),
+  }).populate({
+    path: "productid",
+    options: { sort: { price: -1 } },
+  });
+  // .sort({ price: -1 });
+
+  datass.map((data) => {
+    console.log(data.productid.price);
+  });
+
   let subtotal = 0;
   if (data.length !== 0) {
     const showdata = data.map((data, index) => {
       if (
         data.quantity >= 1 &&
-        data.products[0].active == true &&
-        data.quantity <= data.products[0].quantity
+        data.products.active == true &&
+        data.quantity <= data.products.quantity
       ) {
         data.message = "avalible";
 
-        subtotal += data.quantity * data.products[0].price;
+        subtotal += data.quantity * data.products.price;
         return data;
-      } else if (
-        data.products[0].quantity > 0 &&
-        data.products[0].active == true
-      ) {
-        data.err = `plese enter ${data.products[0].quantity} quantity`;
+      } else if (data.products.quantity > 0 && data.products.active == true) {
+        data.err = `plese enter ${data.products.quantity} quantity`;
 
         return data;
       } else {
@@ -260,26 +295,54 @@ async function showcartbyuserid(req, res) {
 }
 
 async function uorderlist(req, res) {
-  // console.log(req.decode._id);
+  const url = require("url");
+  console.log(req.query);
 
-  const data = await Order.find({ userid: req.decode._id })
-    .select({
-      price: 1,
-      quantity: 1,
-      city: 1,
+  // var q = url.parse(req.url, true);
+  // console.log(req.query.page);
 
-      date: 1,
-    })
-    .populate({
-      path: "productid",
-      model: "product",
-      select: ["productname", "image1", "price"],
-    });
+  // const datalength = await Order.aggregate;
+  const data = await Order.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "productid",
+        foreignField: "_id",
+        as: "productid",
+      },
+    },
+    {
+      $match: {
+        userid: mongoose.Types.ObjectId(req.decode._id),
+      },
+    },
+
+    {
+      $project: {
+        "productid.productname": true,
+        "productid.price": true,
+
+        "productid.image1": true,
+        price: 1,
+        quantity: 1,
+        city: 1,
+        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+      },
+    },
+
+    {
+      $unwind: "$productid",
+    },
+  ]);
+  const pages = Math.ceil(data.length / 10);
+  // console.log(pages);
+  const apidata = data.splice((req.query.page - 1) * 10, 10);
   if (data != 0) {
-    console.log(data);
     res.send({
+      length: pages,
       message: "order list",
-      data: data,
+      data: apidata,
+      datalength: data.length,
     });
   } else {
     res.send({
